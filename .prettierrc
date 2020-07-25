@@ -1,0 +1,10 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "trailingCommas": {
+    "array": false,
+    "object": false,
+    "function": false
+  }
+}
