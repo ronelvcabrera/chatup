@@ -1,104 +1,90 @@
 <template>
-  <div id="app" class="chat-container">
-    <header class="chat-header">
-      <h1><i class="fas fa-smile"></i> Chat Up</h1>
-      <a href="index.html" class="btn">Leave Room</a>
-    </header>
-    <main class="chat-main">
-      <div class="chat-sidebar">
-        <h3><i class="fas fa-users"></i> Members</h3>
-        <ul id="users">
-          <li v-for="(member, idx) in members" :key="member.id">
-            <b :key="`member${idx}`">{{ member.username }}</b>
-          </li>
-        </ul>
+  <div class="login">
+    <div class="login-ctn">
+      <div class="login-body">
+        <b-field label="Username">
+          <b-input v-model="username" placeholder="Your username" required>
+          </b-input>
+        </b-field>
+        <b-field label="Password">
+          <b-input
+            v-model="password"
+            type="password"
+            password-reveal
+            placeholder="Your password"
+            required
+          >
+          </b-input>
+        </b-field>
+        <div v-show="errorMsg">
+          <span class="has-text-danger">
+            {{ errorMsg }}
+          </span>
+        </div>
       </div>
-      <div class="chat-messages">
-        <ul id="chatbox">
-          <li v-for="(msg, idx) in messages" :key="msg.id">
-            <div class="msg-cloud" :class="getMsgCls(msg)">
-              <span :key="`msg${idx}`">
-                {{ getChatMessage(msg) }}
-              </span>
-            </div>
-          </li>
-        </ul>
+      <div class="login-btns">
+        <b-button type="is-success" @click="onClickLogin">Login</b-button>
+        <b-button type="is-info" @click="onClickRegister">Register</b-button>
       </div>
-    </main>
-    <div class="chat-form-container">
-      <form id="chat-form" @submit.prevent="sendMessage">
-        <input
-          id="msg"
-          v-model="message"
-          type="text"
-          placeholder="Enter Message"
-          required
-          autocomplete="off"
-        />
-        <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
-      </form>
     </div>
   </div>
 </template>
 
 <script>
-import SocketMixins from '~/mixins/SocketMixins'
-
 export default {
-  name: 'HomePage',
-  mixins: [SocketMixins],
+  name: 'Home',
+  // middleware({ store }) {
+  //   console.log('home middleware', store)
+  // },
   data() {
     return {
-      members: [],
-      message: '',
-      state: 0
+      username: 'admin',
+      password: 'admintest',
+      errorMsg: ''
     }
   },
   methods: {
-    getMsgCls(message) {
-      const fromMsg = message.user === this.username ? 'mine' : 'not-mine'
-      return `message ${message.type} has-background-${message.color} ${fromMsg}`
-    },
-    getChatMessage(message) {
-      if (message.user === this.username || message.type === 'broadcast') {
-        return `${message.message}`
+    async onClickLogin() {
+      if (!this.username || !this.password) {
+        this.errorMsg = 'Please enter username and password'
+        return
       }
-      return `${message.user}: ${message.message}`
-    },
-    sendMessage() {
-      if (this.message) {
-        this.sendNewMessage(this.message)
-        this.message = ''
+      try {
+        const response = await this.$auth.loginWith('local', {
+          data: {
+            username: this.username,
+            password: this.password
+          }
+        })
+        if (response.data.token) {
+          this.$router.push({
+            name: 'chat',
+            params: { username: this.username }
+          })
+        }
+      } catch {
+        this.errorMsg = 'Incorrect credentials'
       }
+    },
+    onClickRegister() {
+      this.$router.push('register')
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-@import '~/assets/scss/main.scss';
-.msg-cloud {
-  margin-bottom: 15px;
+<style scoped>
+.login-ctn {
+  background-color: white;
 }
 
-.msg-cloud.message.broadcast {
+.login {
+  background-color: white;
   display: flex;
   justify-content: center;
 }
 
-.msg-cloud.chat-msg.mine {
-  display: flex;
-  justify-content: flex-end;
-  background-color: $success;
-}
-
-.msg-cloud.chat-msg.not-mine {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.chat-header {
-  display: flex;
-  justify-content: space-between;
+.login-btns {
+  margin-top: 10px;
 }
 </style>

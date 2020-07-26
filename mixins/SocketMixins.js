@@ -4,7 +4,7 @@ const SocketMixins = {
   name: 'SocketMixins',
   data() {
     return {
-      username: this.$route.query.username,
+      username: this.$route.params.username,
       socket: null,
       messages: [],
       members: []
@@ -40,7 +40,6 @@ const SocketMixins = {
     }
   },
   mounted() {
-    console.log('process.env', process.env)
     this.socket = SocketIO('http://localhost:7071')
     this.socket.emit('JOIN_CHAT', {
       username: this.username

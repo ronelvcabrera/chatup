@@ -1,3 +1,4 @@
+console.log('BASE_API_URL', process.env.BASE_API_URL)
 export default {
   mode: 'universal',
   target: 'server',
@@ -32,18 +33,23 @@ export default {
   modules: [
     'nuxt-buefy',
     '@nuxtjs/axios',
-    '@nuxtjs/dotenv'
-    // '@nuxtjs/auth'
+    '@nuxtjs/dotenv',
+    '@nuxtjs/auth'
   ],
-  // auth: {
-  //   strategies: {
-  //     local: {
-  //       endpoints: {
-  //         login: { url: '/api/auth/login', method: 'post' },
-  //       }
-  //     }
-  //   }
-  // },
-  axios: {},
+  auth: {
+    redirect: {
+      login: '/'
+    },
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: '/api/auth/login', method: 'post' },
+        }
+      }
+    }
+  },
+  axios: {
+    baseURL: process.env.BASE_API_URL
+  },
   build: {}
 }
